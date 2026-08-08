@@ -1,0 +1,21 @@
+[project]
+name = "back-end"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Gab0CS", email = "gabocanseco@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.141.1",
+    "python-dotenv>=1.2.2",
+    "uvicorn[standard]>=0.52.1",
+]
+
+[project.scripts]
+back-end = "back_end:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
