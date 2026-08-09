@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from typing import Protocol
+
 import httpx
 
 from app.core.exceptions import SpaceXAPIError
+
+
+class SpaceXClientProtocol(Protocol):
+    async def get_rockets(self) -> list[dict]: ...
+    async def get_launches(self) -> list[dict]: ...
+    async def get_starlink(self) -> list[dict]: ...
+    async def aclose(self) -> None: ...
 
 
 class SpaceXClient:

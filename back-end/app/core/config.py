@@ -15,6 +15,7 @@ class Settings(BaseModel):
     cache_ttl_seconds: float = 900.0
     cache_refresh_interval_seconds: float = 300.0
     cors_origins: list[str] = ["*"]
+    use_mock_data: bool = True
 
 
 @lru_cache
@@ -25,4 +26,5 @@ def get_settings() -> Settings:
         cache_ttl_seconds=float(os.getenv("CACHE_TTL_SECONDS", "900")),
         cache_refresh_interval_seconds=float(os.getenv("CACHE_REFRESH_INTERVAL_SECONDS", "300")),
         cors_origins=os.getenv("CORS_ORIGINS", "*").split(","),
+        use_mock_data=os.getenv("USE_MOCK_DATA", "false").lower() in ("1", "true", "yes"),
     )
