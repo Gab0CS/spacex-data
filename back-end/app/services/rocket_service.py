@@ -10,15 +10,96 @@ from app.core.cache import TTLCache
 _CACHE_KEY = "rockets"
 
 
-class Rocket(BaseModel):
+class Distance(BaseModel):
+    meters: float | None = None
+    feet: float | None = None
+
+
+class Mass(BaseModel):
+    kg: float | None = None
+    lb: float | None = None
+
+
+class PayloadWeight(BaseModel):
     id: str
     name: str
-    active: bool
-    stages: int
-    boosters: int
+    kg: float | None = None
+    lb: float | None = None
+
+
+class Thrust(BaseModel):
+    kN: float | None = None
+    lbf: float | None = None
+
+
+class FirstStage(BaseModel):
+    reusable: bool | None = None
+    engines: int | None = None
+    fuel_amount_tons: float | None = None
+    burn_time_sec: int | None = None
+    thrust_sea_level: Thrust | None = None
+    thrust_vacuum: Thrust | None = None
+
+
+class CompositeFairing(BaseModel):
+    height: Distance | None = None
+    diameter: Distance | None = None
+
+
+class Payloads(BaseModel):
+    option_1: str | None = None
+    option_2: str | None = None
+    composite_fairing: CompositeFairing | None = None
+
+
+class SecondStage(BaseModel):
+    engines: int | None = None
+    fuel_amount_tons: float | None = None
+    burn_time_sec: int | None = None
+    thrust: Thrust | None = None
+    payloads: Payloads | None = None
+
+
+class Engines(BaseModel):
+    number: int | None = None
+    type: str | None = None
+    version: str | None = None
+    layout: str | None = None
+    engine_loss_max: int | None = None
+    propellant_1: str | None = None
+    propellant_2: str | None = None
+    thrust_sea_level: Thrust | None = None
+    thrust_vacuum: Thrust | None = None
+    thrust_to_weight: float | None = None
+
+
+class LandingLegs(BaseModel):
+    number: int | None = None
+    material: str | None = None
+
+
+class Rocket(BaseModel):
+    id: int | str | None = None
+    rocket_id: str
+    rocket_name: str
+    rocket_type: str | None = None
+    active: bool = False
+    stages: int = 0
+    boosters: int = 0
+    cost_per_launch: int | None = None
     success_rate_pct: float | None = None
     first_flight: str | None = None
     country: str | None = None
+    company: str | None = None
+    height: Distance | None = None
+    diameter: Distance | None = None
+    mass: Mass | None = None
+    payload_weights: list[PayloadWeight] = []
+    first_stage: FirstStage | None = None
+    second_stage: SecondStage | None = None
+    engines: Engines | None = None
+    landing_legs: LandingLegs | None = None
+    wikipedia: str | None = None
     description: str | None = None
 
 
@@ -47,13 +128,10 @@ class RocketService:
     @staticmethod
     def _to_rocket(raw: dict) -> Rocket:
         return Rocket(
-            id=raw["id"],
-            name=raw["name"],
-            active=raw.get("active", False),
-            stages=raw.get("stages", 0),
-            boosters=raw.get("boosters", 0),
-            success_rate_pct=raw.get("success_rate_pct"),
-            first_flight=raw.get("first_flight"),
-            country=raw.get("country"),
-            description=raw.get("description"),
+            **{
+                **raw,
+                "rocket_id": raw.get("rocket_id", raw.get("id")),
+                "rocket_name": raw.get("rocket_name", raw.get("name")),
+                "rocket_type": raw.get("rocket_type", raw.get("type")),
+            }
         )

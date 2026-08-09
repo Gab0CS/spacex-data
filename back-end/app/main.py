@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import dashboard, rockets, starlink
+from app.api import dashboard, launches, rockets, starlink
 from app.clients.mock_spacex_client import MockSpaceXClient
 from app.clients.spacex_client import SpaceXClient, SpaceXClientProtocol
 from app.core.cache import TTLCache
@@ -79,6 +79,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(dashboard.router)
+    app.include_router(launches.router)
     app.include_router(rockets.router)
     app.include_router(starlink.router)
 

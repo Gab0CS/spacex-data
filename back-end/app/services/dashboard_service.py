@@ -39,12 +39,12 @@ class DashboardService:
             self._starlink_service.get_satellites(),
         )
 
-        decided_launches = [launch for launch in launches if launch.success is not None]
-        successful_launches = sum(1 for launch in decided_launches if launch.success)
+        decided_launches = [launch for launch in launches if launch.launch_success is not None]
+        successful_launches = sum(1 for launch in decided_launches if launch.launch_success)
         failed_launches = len(decided_launches) - successful_launches
         success_rate = (successful_launches / len(decided_launches) * 100) if decided_launches else 0.0
 
-        launches_per_year = Counter(launch.date_utc.year for launch in launches)
+        launches_per_year = Counter(launch.launch_date_utc.year for launch in launches)
         active_satellites = sum(1 for satellite in satellites if satellite.is_active)
 
         return DashboardStats(
