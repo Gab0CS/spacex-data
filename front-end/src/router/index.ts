@@ -11,16 +11,10 @@ const router = createRouter({
       meta: { title: 'Dashboard' },
     },
     {
-      path: '/rockets',
-      name: 'rockets',
-      component: () => import('@/views/RocketsView.vue'),
-      meta: { title: 'Rockets' },
-    },
-    {
-      path: '/launches',
-      name: 'launches',
-      component: () => import('@/views/LaunchesView.vue'),
-      meta: { title: 'Launches' },
+      path: '/rockets-launches',
+      name: 'rockets-launches',
+      component: () => import('@/views/RocketsLaunchesView.vue'),
+      meta: { title: 'Rockets & Launches' },
     },
     {
       path: '/starlink',

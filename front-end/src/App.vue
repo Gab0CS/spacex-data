@@ -3,8 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 const navLinks = [
   { to: '/', label: 'Dashboard' },
-  { to: '/rockets', label: 'Rockets' },
-  { to: '/launches', label: 'Launches' },
+  { to: '/rockets-launches', label: 'Rockets & Launches' },
   { to: '/starlink', label: 'Starlink' },
 ]
 </script>
