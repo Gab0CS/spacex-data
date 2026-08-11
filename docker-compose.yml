@@ -1,0 +1,36 @@
+# Local development only. Netlify builds and serves the frontend directly and
+# does not use this file; see netlify.toml and README.md#backend-deployment
+# for how each service is deployed in production.
+services:
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      USE_MOCK_DATA: ${USE_MOCK_DATA:-true}
+      SPACEX_API_BASE_URL: ${SPACEX_API_BASE_URL:-https://api.spacexdata.com}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-900}
+      CACHE_REFRESH_INTERVAL_SECONDS: ${CACHE_REFRESH_INTERVAL_SECONDS:-300}
+    volumes:
+      - ./back-end/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    volumes:
+      - ./front-end:/app
+      - frontend_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - backend
+
+volumes:
+  frontend_node_modules:

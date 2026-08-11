@@ -83,6 +83,10 @@ def create_app() -> FastAPI:
     app.include_router(rockets.router)
     app.include_router(starlink.router)
 
+    @app.get("/health", tags=["health"])
+    async def health_check() -> dict[str, str]:
+        return {"status": "ok"}
+
     @app.exception_handler(SpaceXAPIError)
     async def handle_spacex_api_error(request, exc: SpaceXAPIError) -> JSONResponse:
         return JSONResponse(status_code=503, content={"detail": str(exc)})

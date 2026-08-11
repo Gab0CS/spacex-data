@@ -1,0 +1,14 @@
+[build]
+  base = "front-end"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Vue Router uses history mode, so every path must fall back to index.html
+# and let the client-side router take over.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
