@@ -13,12 +13,73 @@ interface ScatterDatum {
   category: string
 }
 
-const props = defineProps<{
-  data: ScatterDatum[]
-  categoryColors: Record<string, string>
-  xLabel: string
-  yLabel: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    data: ScatterDatum[]
+    categoryColors: Record<string, string>
+    xLabel: string
+    yLabel: string
+    itemLabel?: string
+  }>(),
+  { itemLabel: 'points' },
+)
+
+interface PixelPoint {
+  datum: ScatterDatum
+  cx: number
+  cy: number
+}
+
+interface PointCluster {
+  cx: number
+  cy: number
+  points: ScatterDatum[]
+  pixelPoints: PixelPoint[]
+}
+
+const CLUSTER_RADIUS_PX = 5
+
+function clusterPoints(points: PixelPoint[]): PointCluster[] {
+  const clusters: PointCluster[] = []
+  for (const point of points) {
+    const match = clusters.find((c) => Math.hypot(c.cx - point.cx, c.cy - point.cy) <= CLUSTER_RADIUS_PX)
+    if (match) {
+      match.pixelPoints.push(point)
+      match.points.push(point.datum)
+      match.cx = d3.mean(match.pixelPoints, (p) => p.cx) ?? match.cx
+      match.cy = d3.mean(match.pixelPoints, (p) => p.cy) ?? match.cy
+    } else {
+      clusters.push({ cx: point.cx, cy: point.cy, points: [point.datum], pixelPoints: [point] })
+    }
+  }
+  return clusters
+}
+
+function dominantColor(points: ScatterDatum[]): string {
+  const counts = d3.rollup(
+    points,
+    (v) => v.length,
+    (p) => p.category,
+  )
+  const [topCategory] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]
+  return props.categoryColors[topCategory] ?? ink.muted
+}
+
+function clusterTooltipLines(cluster: PointCluster): string[] {
+  if (cluster.points.length === 1) {
+    const d = cluster.points[0]
+    return [d.id, `${props.xLabel}: ${d.x.toLocaleString()}`, `${props.yLabel}: ${d.y.toLocaleString()}`]
+  }
+  const labels = new Set(cluster.points.map((p) => p.id))
+  const avgX = d3.mean(cluster.points, (p) => p.x) ?? 0
+  const avgY = d3.mean(cluster.points, (p) => p.y) ?? 0
+  return [
+    `${cluster.points.length} ${props.itemLabel}`,
+    labels.size === 1 ? [...labels][0] : `${labels.size} groups`,
+    `${props.xLabel}: ${avgX.toFixed(1)}`,
+    `${props.yLabel}: ${avgY.toFixed(1)}`,
+  ]
+}
 
 const containerRef = ref<HTMLElement | null>(null)
 const svgRef = ref<SVGSVGElement | null>(null)
@@ -92,24 +153,25 @@ function render(): void {
     .attr('font-size', 11)
     .text(props.yLabel)
 
+  const pixelPoints: PixelPoint[] = props.data.map((datum) => ({ datum, cx: x(datum.x), cy: y(datum.y) }))
+  const clusters = clusterPoints(pixelPoints)
+
   root
     .append('g')
     .selectAll('circle')
-    .data(props.data)
+    .data(clusters)
     .join('circle')
-    .attr('cx', (d) => x(d.x))
-    .attr('cy', (d) => y(d.y))
-    .attr('r', 3.5)
-    .attr('fill', (d) => props.categoryColors[d.category] ?? ink.muted)
-    .attr('fill-opacity', 0.75)
+    .attr('cx', (c) => c.cx)
+    .attr('cy', (c) => c.cy)
+    .attr('r', (c) => Math.min(12, 3.5 + (c.points.length - 1) * 1.5))
+    .attr('fill', (c) => dominantColor(c.points))
+    .attr('fill-opacity', 0.78)
+    .attr('stroke', (c) => (c.points.length > 1 ? '#0f172a' : 'none'))
+    .attr('stroke-width', 1.5)
     .style('cursor', 'pointer')
-    .on('mousemove', (event: MouseEvent, d: ScatterDatum) => {
+    .on('mousemove', (event: MouseEvent, c: PointCluster) => {
       if (!containerRef.value) return
-      showTooltip(event, containerRef.value, [
-        d.id,
-        `${props.xLabel}: ${d.x.toLocaleString()}`,
-        `${props.yLabel}: ${d.y.toLocaleString()}`,
-      ])
+      showTooltip(event, containerRef.value, clusterTooltipLines(c))
     })
     .on('mouseleave', hideTooltip)
 }

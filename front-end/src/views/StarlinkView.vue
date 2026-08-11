@@ -134,12 +134,17 @@ const {
     >
       <div class="flex flex-col gap-6">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <PanelCard title="Altitude vs. inclination" subtitle="Each point is one satellite" class="lg:col-span-2">
+          <PanelCard
+            title="Altitude vs. inclination"
+            subtitle="Each point is one satellite — larger points are overlapping satellites in the same shell"
+            class="lg:col-span-2"
+          >
             <ScatterChart
               :data="orbitScatterData"
               :category-colors="statusColors"
               x-label="Inclination (degrees)"
               y-label="Altitude (km)"
+              item-label="satellites"
             />
           </PanelCard>
           <PanelCard title="Operational status" subtitle="Active vs. inactive satellites">

@@ -195,4 +195,12 @@ MOCK_STARLINK: list[dict] = [
         semi_major_axis_km=6788.71, period_min=90.7, apoapsis_km=420.4, periapsis_km=406.9,
         launch_date="2019-05-24", decay_date="2020-01-29",
     ),
+    _satellite(
+        "s11", "v1.0", "flight-15", object_name="STARLINK-1133", norad_id=45181,
+        longitude=-45.21, latitude=12.83, height_km=550.2, velocity_kms=7.59,
+        epoch="2020-08-19T04:12:00.000Z", mean_motion=15.06, eccentricity=0.0001598,
+        inclination_deg=53.0, raan=95.4931, arg_of_pericenter=88.9432, mean_anomaly=271.1854,
+        semi_major_axis_km=6921.253, period_min=95.6, apoapsis_km=551.9, periapsis_km=548.5,
+        launch_date="2020-08-18",
+    ),
 ]
